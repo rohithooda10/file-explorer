@@ -17,7 +17,7 @@ A fully functional File Explorer Application, with both Normal and Command modes
 
 ## Introduction
 
-This File Explorer Application is a project developed as an assignment. It provides two modes: Normal Mode for browsing directories and files and Command Mode for executing various file and directory operations.
+This File Explorer Application is a project developed in C++. It provides two modes: Normal Mode for browsing directories and files and Command Mode for executing various file and directory operations.
 
 ## Some screenshots
 
