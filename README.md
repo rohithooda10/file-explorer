@@ -5,7 +5,6 @@ A fully functional File Explorer Application, with both Normal and Command modes
 ## Table of Contents
 
 - [Introduction](#introduction)
-- [Prerequisites](#prerequisites)
 - [Features](#features)
   - [Normal Mode](#normal-mode)
   - [Command Mode](#command-mode)
@@ -15,20 +14,21 @@ A fully functional File Explorer Application, with both Normal and Command modes
 - [Contributing](#contributing)
 - [License](#license)
 
+
 ## Introduction
 
 This File Explorer Application is a project developed as an assignment. It provides two modes: Normal Mode for browsing directories and files and Command Mode for executing various file and directory operations.
 
-## Prerequisites
+## Some screenshots
 
-To build and run this application, you should have the following prerequisites:
-
-- Basic knowledge of C++ programming.
-- A C++ compiler (e.g., g++) for code compilation.
-- A terminal or command prompt to execute and test the application.
+<img width="1069" alt="1" src="https://github.com/rohithooda10/file-explorer/assets/109358642/57ff7cc7-a1ec-4877-b32c-91e75d4f338d">
+<img width="1069" alt="2" src="https://github.com/rohithooda10/file-explorer/assets/109358642/8e9841b5-1047-4204-9f96-4919ee5565cf">
+<img width="1072" alt="3" src="https://github.com/rohithooda10/file-explorer/assets/109358642/61ac753f-e918-4d71-a9a1-380e55b19f47">
+<img width="1069" alt="4" src="https://github.com/rohithooda10/file-explorer/assets/109358642/215c96f9-e6fb-4fd4-82dd-540bb19dcc32">
+<img width="1069" alt="5" src="https://github.com/rohithooda10/file-explorer/assets/109358642/04a0c5be-439e-476f-84d8-754dbf2a24bf">
+<img width="1069" alt="6" src="https://github.com/rohithooda10/file-explorer/assets/109358642/a0d85cf7-50c1-4076-a20a-065f5ba8164e">
 
 ## Features
-
 
 ### Normal Mode
 
