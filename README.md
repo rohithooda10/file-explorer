@@ -104,9 +104,7 @@ The application can enter the Command mode whenever the colon (":") key is press
 
    ```shell
    $ g++ main.cpp -o file_explorer
-
-    ```shell
-    $ ./file_explorer
+   $ ./file_explorer
     
 2. You will be in Normal Mode by default. Use the arrow keys, 'Enter' key, and specific shortcuts to navigate and interact with files and directories.
 
