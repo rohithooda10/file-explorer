@@ -32,31 +32,31 @@ To build and run this application, you should have the following prerequisites:
 
 ### Normal Mode
 
-Normal mode is the default mode of your application. It should have the following functionalities:
+Normal mode is the default mode of your application. It has the following functionalities:
 
-1. **Display a list of directories and files in the current folder**
-   - Every file in the directory should be displayed on a new line with the following attributes for each file:
+1. **Displays a list of directories and files in the current folder**
+   - Every file in the directory is displayed on a new line with the following attributes for each file:
      i. File Name
      ii. File Size
      iii. Ownership (user and group) and Permissions
      iv. Last modified
-   - The file explorer should show entries “.” and “..” for the current and parent directory, respectively.
-   - The file explorer should handle scrolling using the up and down arrow keys.
-   - Users should be able to navigate up and down in the file list using the corresponding up and down arrow keys. The up and down arrow keys should also handle scrolling during vertical overflow.
+   - The file explorer shows entries “.” and “..” for the current and parent directory, respectively.
+   - The file explorer handles scrolling using the up and down arrow keys.
+   - Users can navigate up and down in the file list using the corresponding up and down arrow keys. The up and down arrow keys also handle scrolling during vertical overflow.
 
 2. **Open directories and files**
-   - Directory: Clear the screen and navigate into the directory and show the directory contents as specified in point 1.
-   - File: Open the file in a vi editor.
+   - Directory: Clears the screen and navigate into the directory and show the directory contents as specified in point 1.
+   - File: Opens the file in an editor.
 
 3. **Traversal**
-   - Go back: Left arrow key should take the user to the previously visited directory.
-   - Go forward: Right arrow key should take the user to the next directory.
-   - Up one level: Backspace key should take the user up one level.
-   - Home: "h" key should take the user to the home folder.
+   - Go back: Left arrow key takes the user to the previously visited directory.
+   - Go forward: Right arrow key takes the user to the next directory.
+   - Up one level: Backspace key takes the user up one level.
+   - Home: "h" key takes the user to the home folder.
 
 ### Command Mode
 
-The application should enter the Command mode whenever the colon (":") key is pressed. In the command mode, the user should be able to enter different commands. All commands appear in the status bar at the bottom.
+The application can enter the Command mode whenever the colon (":") key is pressed. In the command mode, the user can enter different commands. All commands appear in the status bar at the bottom.
 
 1. **Copy, Move, Rename**
    - Copy: `$ copy <source_file(s)> <destination_directory>`
@@ -66,9 +66,8 @@ The application should enter the Command mode whenever the colon (":") key is pr
      - `$ copy foo.txt bar.txt baz.mp4 ~/foobar`
      - `$ move foo.txt bar.txt baz.mp4 ~/foobar`
      - `$ rename foo.txt bar.txt`
-   - Assume that the destination directory exists, and you have write permissions.
-   - Copying/Moving directories should also be implemented.
-   - The file ownership and permissions should remain intact.
+   - Copying/Moving directories also be implemented.
+   - The file ownership and permissions remains intact.
 
 2. **Create File and Directory**
    - Create File: `$ create_file <file_name> <destination_path>`
@@ -80,7 +79,7 @@ The application should enter the Command mode whenever the colon (":") key is pr
 3. **Delete File and Directory**
    - Delete File: `$ delete_file <file_path>`
    - Delete Directory: `$ delete_dir <dir_path>`
-   - On deleting a directory, you must recursively delete all content present inside it.
+   - On deleting a directory, you recursively delete all content present inside it.
 
 4. **Goto**
    - `$ goto <location>`
@@ -90,36 +89,25 @@ The application should enter the Command mode whenever the colon (":") key is pr
    - `$ search <file_name>`
    - `$ search <directory_name>`
    - Search for a given file or folder under the current directory recursively.
-   - Output should be True or False depending on whether the file or folder exists.
+   - Output is True or False depending on whether the file or folder exists.
 
 6. **Exiting Command Mode**
-   - On pressing the "ESC" key, the application should go back to Normal Mode.
+   - On pressing the "ESC" key, the application goes back to Normal Mode.
 
 7. **Quitting the Application**
-   - On pressing "q" key in normal mode, the application should close. Similarly, entering the "quit" command in command mode should also close the application.
+   - On pressing "q" key in normal mode, the application closes. Similarly, entering the "quit" command in command mode also closes the application.
 
-
-### Command Mode
-
-In Command Mode, you can enter different commands in the status bar at the bottom of the screen, including:
-
-1. Copy files or directories to a destination.
-2. Move files or directories to a destination.
-3. Rename files or directories.
-4. Create new files or directories.
-5. Delete files or directories (including recursive deletion of directories).
-6. Go to a specific directory location.
-7. Search for files or directories recursively.
-8. Return to Normal Mode using the 'ESC' key.
 
 ## Usage
 
-1. To start the application, compile the `main.cpp` file using the C++ compiler:
+1. To start the application, compile the `main.cpp` file using the C++ compiler and run:
 
    ```shell
    $ g++ main.cpp -o file_explorer
-Run the application:
-$ ./file_explorer
+
+    ```shell
+    $ ./file_explorer
+    
 2. You will be in Normal Mode by default. Use the arrow keys, 'Enter' key, and specific shortcuts to navigate and interact with files and directories.
 
 3. To switch to Command Mode, press the ':' key, enter a command, and press 'Enter' to execute it.
