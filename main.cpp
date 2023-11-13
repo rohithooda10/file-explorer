@@ -58,10 +58,10 @@ string checkPermissions(struct stat filesInfo)
 	{
 		perm+="-";
 	}
-	if((filesInfo.st_mode & S_IRUSR)) perm+="r"; else perm+="-";
-	if((filesInfo.st_mode & S_IWUSR)) perm+="w"; else perm+="-";
-	if((filesInfo.st_mode & S_IXUSR)) perm+="x"; else perm+="-";
-	if((filesInfo.st_mode & S_IRGRP)) perm+="r"; else perm+="-";
+	if((filesInfo.st_mode & S_IRUSR)) perm+="r"; else perm+="-"; // read permission
+	if((filesInfo.st_mode & S_IWUSR)) perm+="w"; else perm+="-"; // write permission
+	if((filesInfo.st_mode & S_IXUSR)) perm+="x"; else perm+="-"; // execute permission
+	if((filesInfo.st_mode & S_IRGRP)) perm+="r"; else perm+="-"; 
 	if((filesInfo.st_mode & S_IWGRP)) perm+="w"; else perm+="-";
 	if((filesInfo.st_mode & S_IXGRP)) perm+="x"; else perm+="-";
 	if((filesInfo.st_mode & S_IROTH)) perm+="r"; else perm+="-";
@@ -262,13 +262,13 @@ void display(string path)
 //Function to get type of command
 string getCommandType(string enteredCommand)
 {
-	string ans="";
-	for(int i=0;i<enteredCommand.length();i++)
+	string ans = "";
+	for(int i = 0; i < enteredCommand.length(); i++)
 	{
-		if(enteredCommand[i]==' ')
+		if(enteredCommand[i] == ' ')
 			break;
 		else
-			ans+=enteredCommand[i];
+			ans += enteredCommand[i];
 	}
 	return ans;
 }
@@ -280,6 +280,7 @@ void createNewFile(string path,string newfilename)
 	struct dirent *ent;
 	if(path=="")
 		path=currentPath;
+	// Since we are already checking whether file exists or not, these flags create a new file
 	int fileStatus = open((path+newfilename).c_str(),O_RDWR | O_CREAT,S_IRWXU|S_IRWXG|S_IRWXO);
 	if(fileStatus==-1)
 	{
@@ -361,11 +362,13 @@ void copyFile(string srcfile,string desdir)
 	string row;
 	ifstream srcfilestream;
 	ofstream desfilestream;
+	// open src, open dest file, copy each line
 	srcfilestream.open(srcfile.c_str(),ios::in);
 	srcfile = getFileName(srcfile);
 	desfilestream.open((desdir+"/"+srcfile).c_str(),ios::out);
 	while(getline(srcfilestream,row))
 	{
+		// copying 
 		desfilestream<<row<<"\n";
 	}
 	
@@ -376,7 +379,8 @@ void copyFile(string srcfile,string desdir)
 //Function to delete single file
 void deleteFile(string fileToDelete)
 {
-	if(remove(fileToDelete.c_str())!=0)
+	// remove is present in stdio.h, return non zero if fails
+	if(remove(fileToDelete.c_str()) != 0)
 	{
 		perror("Error in deleting file");
 	}
@@ -389,11 +393,11 @@ vector<string> getAllFiles(string dirname)
 	DIR* dir;
 	struct dirent *d;
 	
-	dir=opendir(dirname.c_str());
-	if(dir==NULL)
+	dir = opendir(dirname.c_str());
+	if(dir == NULL)
 		return ans;
-	if(dir!=NULL){
-		while((d=readdir(dir))!=NULL)
+	if(dir != NULL){
+		while((d = readdir(dir)) != NULL)
 		{
 			ans.push_back(dirname+d->d_name);
 		}
@@ -402,34 +406,36 @@ vector<string> getAllFiles(string dirname)
 }
 
 //Function to recursively search in directory
-bool searchInDir(string dirname,string toSearch)
+bool searchInDir(string dirname, string toSearch)
 {
 	vector<string> fileList = getAllFiles(dirname);
-	for(int i=0;i<fileList.size();i++)
+	for(int i = 0; i < fileList.size(); i++)
 	{
 		struct stat filesInfo;
 		stat(fileList[i].c_str(),&filesInfo);
-					
+		// is regular file
 		if(S_ISREG(filesInfo.st_mode))
 		{
 			
 			string justFileName = getFileName(fileList[i]);
-			if(justFileName==toSearch)
+			if(justFileName == toSearch)
 			{
 				return true;
 			}else continue;
 		}
-		else if(getFileName(fileList[i])=="." || getFileName(fileList[i])=="..")
+		else if(getFileName(fileList[i]) == "." || getFileName(fileList[i]) == "..")
 		{
 			continue;
 		}
-		else
+		else // if directory
 		{
+			// if directory was searched
 			string justFileName = getFileName(fileList[i]);
-			if(justFileName==toSearch)
+			if(justFileName == toSearch)
 			{
 				return true;
 			}
+			// search inside directory
 			bool ansreturned =  searchInDir(fileList[i]+"/",toSearch);
 			if(ansreturned==true)
 				return true;			
@@ -444,10 +450,11 @@ void copyingFunction(string srcpath,string desdir)
 	vector<string> fileList = getAllFiles(srcpath);
 	createNewDir(desdir,getFolderName(srcpath));
 	desdir = desdir+getFolderName(srcpath);
-	for(int i=0;i<fileList.size();i++)
+	for(int i = 0; i < fileList.size(); i++)
 	{
 		struct stat filesInfo;
 		stat(fileList[i].c_str(),&filesInfo);	
+		// S_ISREG test its regular file or not
 		if(S_ISREG(filesInfo.st_mode))
 		{
 			copyFile(fileList[i],desdir);
@@ -467,10 +474,11 @@ void copyingFunction(string srcpath,string desdir)
 void deletingFunction(string srcpath)
 {	
 	vector<string> fileList = getAllFiles(srcpath);
-	for(int i=0;i<fileList.size();i++)
+	for(int i = 0; i < fileList.size(); i++)
 	{
 		struct stat filesInfo;
 		stat(fileList[i].c_str(),&filesInfo);	
+		// Delete file
 		if(S_ISREG(filesInfo.st_mode))
 		{
 			deleteFile(fileList[i]);
@@ -481,6 +489,7 @@ void deletingFunction(string srcpath)
 		}
 		else
 		{
+			// Recursively delete files
 			deletingFunction(fileList[i]+"/");		
 		}
 	}
@@ -496,15 +505,15 @@ string getParentOfFile(string path)
 {
 	string ans="";
 	int flag=0;
-	for(int i=path.length()-1;i>=0;i--)
+	for(int i = path.length() - 1; i >= 0; i--)
 	{
-		if(path[i]=='/' && flag==0)
+		if(path[i] == '/' && flag==0)
 			flag++;
-		else if(flag>=1)
-			ans+=path[i];
+		else if(flag >= 1)
+			ans += path[i];
 	}
 	reverse(ans.begin(),ans.end());
-	ans+='/';
+	ans += '/';
 	return ans;
 }
 
@@ -515,30 +524,30 @@ bool findInCurrent(string dirname,string fdname,string fileOrDir)
 	DIR* dir;
 	struct dirent *d;
 	
-	dir=opendir(dirname.c_str());
-	if(dir!=NULL){
-		while((d=readdir(dir))!=NULL)
+	dir = opendir(dirname.c_str());
+	if(dir != NULL){
+		while((d = readdir(dir)) != NULL)
 		{
 			filesAndDirInCurrent.push_back(dirname+d->d_name);
 		}
 	}
 	closedir(dir);
-	for(int i=0;i<filesAndDirInCurrent.size();i++)
+	for(int i = 0; i < filesAndDirInCurrent.size(); i++)
 	{
 		struct stat filesInfo;
-		stat(filesAndDirInCurrent[i].c_str(),&filesInfo);
+		stat(filesAndDirInCurrent[i].c_str(), &filesInfo);
 		
-		if(S_ISREG(filesInfo.st_mode) && fileOrDir=="file")
+		if(S_ISREG(filesInfo.st_mode) && fileOrDir == "file")
 		{
-			if(getFileName(filesAndDirInCurrent[i])==getFileName(fdname))
+			if(getFileName(filesAndDirInCurrent[i]) == getFileName(fdname))
 			{
 				return true;
 			}
 				
 		}
-		else if(S_ISDIR(filesInfo.st_mode) && fileOrDir=="dir")
+		else if(S_ISDIR(filesInfo.st_mode) && fileOrDir == "dir")
 		{
-			if(getFolderName(filesAndDirInCurrent[i]+"/")==getFolderName(fdname))
+			if(getFolderName(filesAndDirInCurrent[i]+"/") == getFolderName(fdname))
 			{
 				return true;
 			}
@@ -571,11 +580,11 @@ vector<string> listAllFiles(string dirname)
 	DIR* dir;
 	struct dirent *d;
 	
-	dir=opendir(dirname.c_str());
-	if(dir==NULL)
+	dir = opendir(dirname.c_str());
+	if(dir == NULL)
 		return listOfFiles;
-	if(dir!=NULL){
-		while((d=readdir(dir))!=NULL)
+	if(dir != NULL){
+		while((d = readdir(dir)) != NULL)
 		{
 			listOfFiles.push_back(dirname+d->d_name);
 		}
@@ -583,16 +592,16 @@ vector<string> listAllFiles(string dirname)
 	closedir(dir);
 	sort(listOfFiles.begin(),listOfFiles.end());
 	fileCount = listOfFiles.size();
-	int maxprintlimit = listOfFiles.size()<getWinRow()-winoffset?listOfFiles.size():getWinRow()-winoffset;
-	for(int i=0;i<maxprintlimit;i++)
+	int maxprintlimit = listOfFiles.size() < getWinRow() - winoffset ? listOfFiles.size(): getWinRow() - winoffset;
+	for(int i = 0; i < maxprintlimit; i++)
 	{
 		display(listOfFiles[i]);
 	}
-	posCursor(getWinRow()-winoffset+1,ycurr);
+	posCursor(getWinRow() - winoffset + 1, ycurr);
 	display("printcurrentdir");
 	display("---");
 	
-	c1=maxprintlimit-1;
+	c1 = maxprintlimit - 1;
 	posCursor(1,1);
 	currRow = getWinRow();
 	return listOfFiles;
@@ -603,9 +612,9 @@ vector<string> listAllFiles(string dirname)
 void clearCommandMode()
 {
 	listOfFiles.clear();
-	c=0;
+	c = 0;
 	listAllFiles(currentPath);
-	xcurr= getWinRow()-winoffset+4;
+	xcurr = getWinRow() - winoffset + 4;
 	posCursor(xcurr,ycurr);
 }
 
@@ -613,44 +622,47 @@ int main()
 {
 	
 	uid_t uid = geteuid(); //to get username of system
-	string useridpc = getpwuid(uid)->pw_name;
+	string useridpc = getpwuid(uid)->pw_name; // Gives username of user based on uid, getpwuid() gives user details
 	string path = "/home/"+ useridpc +"/Desktop/";
-	currentPath= path;
-	basePath+=useridpc+"/";
-	struct termios term;
-        tcgetattr(fileno(stdin), &term);
-        term.c_lflag &= ~ECHO;
-        term.c_lflag &= ~ICANON;
-        tcsetattr(fileno(stdin), 0, &term);
-        navStack.push(currentPath);
+	currentPath = path;
+	basePath += useridpc + "/";
+	struct termios term; // terminal interface
+    tcgetattr(fileno(stdin), &term); // get terminal attributes
+    // Switching OFF the typing on terminal
+    term.c_lflag &= ~ECHO;
+    term.c_lflag &= ~ICANON;
+    tcsetattr(fileno(stdin), 0, &term); // set terminal attributes
+    navStack.push(currentPath); // keeping track of path for navigation (forward, backward)
 	listAllFiles(currentPath.c_str());
 	char ch;
 	while(1)
 	{	
 		if(getWinRow()!=currRow) //manage vertical resizing
 		{
-			fileCount=0;
+			fileCount = 0;
 			listOfFiles.clear();
-			c=0;
+			c = 0;
 			listAllFiles(currentPath.c_str());
-			currRow=getWinRow();
+			currRow = getWinRow();
 		}
-		if(kbhit())
+		if(kbhit()) // keyboard hit
 		{
 		
-			ch=cin.get();
-			if(ch==':' && mode=="NORMAL MODE") //switch to command mode
+			ch = cin.get();
+			if(ch ==':' && mode == "NORMAL MODE") //switch to command mode
 			{
-				mode="COMMAND MODE";
-				xcurr= getWinRow()-winoffset+1;
+				mode = "COMMAND MODE";
+				xcurr = getWinRow()-winoffset+1;
 				posCursor(xcurr,ycurr);
 				display("printcurrentdir");
 				display("---");
+				// Switching ON the typing on terminal
 				term.c_lflag |= ECHO;
 				term.c_lflag |= ICANON;
 				tcsetattr(fileno(stdin), 0, &term);
+
 				char inChar;
-				int flag=0;
+				int flag = 0;
 				while(1)
 				{
 					string commandToRun;
@@ -660,32 +672,35 @@ int main()
 						if(kbhit())
 						{
 							inChar = getchar();
-							if(inChar==27) //exit command mode on escape
+							if(inChar == 27) //exit COMMAND MODE on escape and got to NORMAL MODE
 							{
-								mode="NORMAL MODE";
-								cout << "\033[2J\033[1;1H";
-								xcurr=1;
+								mode = "NORMAL MODE";
+								cout << "\033[2J\033[1;1H"; // to clear screen
+								xcurr = 1;
 								posCursor(xcurr,ycurr);
+
+								// Switching OFF the typing on terminal for NORMAL MODE
 								term.c_lflag &= ~ECHO;
 								term.c_lflag &= ~ICANON;
 								tcsetattr(fileno(stdin), 0, &term);
-								fileCount=0;
+
+								fileCount = 0;
 								listOfFiles.clear();
-								c=0;
+								c = 0;
 								listAllFiles(currentPath.c_str());
-								flag=1;
+								flag = 1;
 								break;
 							}
-							else if(inChar==127)
+							else if(inChar == 127)
 							{
 								cout<<"\b \b";
-								commandToRun  = commandToRun.substr(0,commandToRun.length()-1);
+								commandToRun  = commandToRun.substr(0,commandToRun.length() - 1);
 							}
-							else if(inChar!='\n'){
-								commandToRun+=inChar;
+							else if(inChar != '\n'){
+								commandToRun += inChar;
 								cout<<inChar;
 							}
-							else if(inChar=='\n')
+							else if(inChar == '\n')
 							{
 								cout<<endl;
 								break;
@@ -694,11 +709,11 @@ int main()
 						
 						}
 					}
-					if(flag==1)
+					if(flag == 1)
 					{
 						break;
 					}
-					if(commandToRun=="quit") //quit program on quit command
+					if(commandToRun == "quit") //quit program on quit command
 					{
 						cout << "\033[2J\033[1;1H";
 						return 0;
@@ -708,19 +723,19 @@ int main()
 					
 					//commands - 
 					
-					if(typeOfCommand==""){}
-					else if(typeOfCommand=="create_file")
+					if(typeOfCommand == ""){}
+					else if(typeOfCommand == "create_file")
 					{
-						string pathOfFile,newFileName;
-						int spacecount=0;
-						for(int i=0;i<commandToRun.length();i++)
+						string pathOfFile, newFileName;
+						int spacecount = 0;
+						for(int i = 0; i < commandToRun.length(); i++)
 						{
-							if(commandToRun[i]==' ')
+							if(commandToRun[i] == ' ')
 							 spacecount++;
-							if(spacecount>=2) break;
+							if(spacecount >= 2) break;
 						}
-						if(spacecount==1)
-							pathOfFile=currentPath;
+						if(spacecount == 1)
+							pathOfFile = currentPath;
 						else
 							pathOfFile = getFullPath(arg2(commandToRun));
 						newFileName = arg1(commandToRun);
@@ -735,26 +750,26 @@ int main()
 						} 
 						clearCommandMode();
 					}
-					else if(typeOfCommand=="create_dir")
+					else if(typeOfCommand == "create_dir")
 					{
-						string pathOfDir,newDirName;
-						int spacecount=0;
-						for(int i=0;i<commandToRun.length();i++)
+						string pathOfDir, newDirName;
+						int spacecount = 0;
+						for(int i = 0; i < commandToRun.length(); i++)
 						{
-							if(commandToRun[i]==' ')
+							if(commandToRun[i] == ' ')
 							 spacecount++;
-							if(spacecount>=2) break;
+							if(spacecount >= 2) break;
 						}
-						if(spacecount==1)
-							pathOfDir=currentPath;
+						if(spacecount == 1)
+							pathOfDir = currentPath;
 						else
 							pathOfDir = getFullPath(arg2(commandToRun));
 						newDirName = arg1(commandToRun);
 						if(validPath(pathOfDir))
 						{
 							
-							if(!findInCurrent(pathOfDir,pathOfDir+newDirName+"/","dir"))
-								createNewDir(pathOfDir,newDirName);
+							if(!findInCurrent(pathOfDir, pathOfDir+newDirName + "/", "dir"))
+								createNewDir(pathOfDir, newDirName);
 							else{
 								cout<<"Directory already exists!\n";
 								cout<<"Press any key to continue..";
@@ -772,13 +787,13 @@ int main()
 						} 
 						clearCommandMode();
 					}
-					else if(typeOfCommand=="rename")
+					else if(typeOfCommand == "rename")
 					{
 						string oldName,newName;
 						oldName = getFullPath(arg1(commandToRun));
 						newName = getFullPath(arg2(commandToRun));
 						
-						if(oldName==currentPath)
+						if(oldName == currentPath)
 						{
 							cout<<"Can't rename current directory\n";
 							cout<<"Press any key to continue..";
@@ -792,7 +807,7 @@ int main()
 							getch();
 							clearCommandMode();
 						}
-						else if(rename(oldName.c_str(),newName.c_str())!=0)
+						else if(rename(oldName.c_str(),newName.c_str()) != 0)
 						{
 							perror("Error in renaming");
 							cout<<"Press any key to continue..";
@@ -801,7 +816,7 @@ int main()
 						}
 						clearCommandMode();
 					}
-					else if(typeOfCommand=="delete_file")
+					else if(typeOfCommand == "delete_file")
 					{
 						string fileToDelete;
 						fileToDelete = getFullPath(arg1(commandToRun));
@@ -810,11 +825,11 @@ int main()
 						getch();
 						clearCommandMode();
 					}
-					else if(typeOfCommand=="delete_dir")
+					else if(typeOfCommand == "delete_dir")
 					{
 						string fileToDelete;
 						fileToDelete = getFullPath(arg1(commandToRun));
-						if(fileToDelete==currentPath)
+						if(fileToDelete == currentPath)
 						{
 							cout<<"Can't delete current directory\n";
 						}
@@ -823,15 +838,15 @@ int main()
 						getch();
 						clearCommandMode();
 					}
-					else if(typeOfCommand=="copy")
+					else if(typeOfCommand == "copy")
 					{
-						string srcfile,desdir;
+						string srcfile, desdir;
 						desdir = getFullPath(arg2(commandToRun));
 						vector<string> srcs = getAllSrcs(commandToRun);
 						
 						if(validPath(desdir))
 						{
-							for(int i=0;i<srcs.size();i++)
+							for(int i = 0; i < srcs.size(); i++)
 							{
 								struct stat filesInfo;
 								stat(getFullPath(srcs[i]).c_str(),&filesInfo);	
@@ -839,10 +854,10 @@ int main()
 								{
 									string fullPathSrc = getFullPath(srcs[i]);
 									string srcParent = getParentDir(fullPathSrc);
-									if(!validPath(fullPathSrc) || !findInCurrent(srcParent,fullPathSrc,"dir"))
+									if(!validPath(fullPathSrc) || !findInCurrent(srcParent, fullPathSrc, "dir"))
 									{
 										cout<<"Source not found\n";
-									}else if(!findInCurrent(desdir,fullPathSrc,"dir"))
+									}else if(!findInCurrent(desdir, fullPathSrc, "dir"))
 									{	
 										copyingFunction(fullPathSrc,desdir);
 									}
@@ -862,14 +877,14 @@ int main()
 						getch();
 						clearCommandMode();
 					}
-					else if(typeOfCommand=="move")
+					else if(typeOfCommand == "move")
 					{
 						string srcfile,desdir;
 						desdir = getFullPath(arg2(commandToRun));
 						vector<string> srcs = getAllSrcs(commandToRun);
 						if(validPath(desdir))
 						{
-							for(int i=0;i<srcs.size();i++)
+							for(int i = 0; i < srcs.size(); i++)
 							{
 								struct stat filesInfo;
 								stat(getFullPath(srcs[i]).c_str(),&filesInfo);	
@@ -877,16 +892,17 @@ int main()
 								{
 									string fullPathSrc = getFullPath(srcs[i]);
 									string srcParent = getParentDir(fullPathSrc);
-									if(!validPath(fullPathSrc) || !findInCurrent(srcParent,fullPathSrc,"dir"))
+									if(!validPath(fullPathSrc) || !findInCurrent(srcParent, fullPathSrc, "dir"))
 									{
 										cout<<"Source not found\n";
-									}else if(fullPathSrc==currentPath){
+									}else if(fullPathSrc == currentPath){
 										cout<<"Can't move current directory\n";
 									}else if(!findInCurrent(desdir,fullPathSrc,"dir"))
 									{
 										copyingFunction(fullPathSrc,desdir);
 										deletingFunction(fullPathSrc);
-									}else cout<<"Directory already exists!\n";
+									}
+									else cout<<"Directory already exists!\n";
 									
 								}
 								else
@@ -899,16 +915,18 @@ int main()
 										{
 											perror("Error in moving");
 										}
-									}else cout<<"Source not found\n";
+									}
+									else cout<<"Source not found\n";
 									
 								}
 							}
-						}else cout<<"Invalid destination path\n";
+						}
+						else cout<<"Invalid destination path\n";
 						cout<<"Press any key to continue..";
 						getch();
 						clearCommandMode();
 					}
-					else if(typeOfCommand=="search")
+					else if(typeOfCommand == "search")
 					{
 						string toSearch;
 						toSearch = arg1(commandToRun);
@@ -918,18 +936,18 @@ int main()
 						getch();
 						clearCommandMode();
 					}
-					else if(typeOfCommand=="goto")
+					else if(typeOfCommand == "goto")
 					{
 						string gotoPath = getFullPath(arg1(commandToRun));
 						if(validPath(gotoPath))
 						{
 							listOfFiles.clear();
-							c=0;
+							c = 0;
 							navStack.push(gotoPath);
 							currentPath = gotoPath;
 							listAllFiles(currentPath);
 							while(!navStackForward.empty()) navStackForward.pop();
-							xcurr= getWinRow()-winoffset+4; //+4 because we want to print below mode and directory
+							xcurr= getWinRow() - winoffset + 4; //+4 because we want to print below mode and directory
 							posCursor(xcurr,ycurr);
 						}else
 						{
@@ -951,35 +969,35 @@ int main()
 				
 				
 			}
-			else if(ch==':' && mode=="COMMAND MODE") //switch to command mode
+			else if(ch == ':' && mode == "COMMAND MODE") //switch to command mode
 			{
 				mode="NORMAL MODE";
 				cout << "\033[2J\033[1;1H";
-				xcurr=1;
+				xcurr = 1;
 				posCursor(xcurr,ycurr);
 				term.c_lflag &= ~ECHO;
 				term.c_lflag &= ~ICANON;
 				tcsetattr(fileno(stdin), 0, &term);
-				fileCount=0;
+				fileCount = 0;
 				listOfFiles.clear();
-				c=0;
+				c = 0;
 				listAllFiles(currentPath.c_str());
 			}
-			else if(ch=='A' && mode=="NORMAL MODE") //handle scrolling up
+			else if(ch == 'A' && mode == "NORMAL MODE") //handle scrolling up
 			{	
-				if(c1>0 && xcurr>=2)
+				if(c1 > 0 && xcurr >= 2)
 				{
 					xcurr--;
-					if(xcurr<=1) xcurr=1;
+					if(xcurr <= 1) xcurr = 1;
 					posCursor(xcurr,ycurr);
 				}
-				else if(xcurr==1 && c>0)
+				else if(xcurr == 1 && c > 0)
 				{
 					c--;
 					
-					if(c1>0)
+					if(c1 > 0)
 						c1--;
-					xcurr=1;
+					xcurr = 1;
 					posCursor(xcurr,ycurr);
 					cout << "\033[2J\033[1;1H";
 					for(int i=c;i<=c1;i++)
@@ -987,10 +1005,10 @@ int main()
 						display(listOfFiles[i]);
 						
 					}
-					posCursor(getWinRow()-winoffset+1,ycurr);
+					posCursor(getWinRow() - winoffset + 1,ycurr);
 					display("printcurrentdir");
 					display("---");
-					xcurr=1;
+					xcurr = 1;
 					posCursor(xcurr,ycurr);
 				}else
 				{
@@ -999,40 +1017,42 @@ int main()
 				}
 			}
 			
-			else if(ch=='B' && mode=="NORMAL MODE") //handle scrolling down
+			else if(ch == 'B' && mode == "NORMAL MODE") //handle scrolling down
 			{
-				if(xcurr<getWinRow()-winoffset && xcurr<=c1)
+				if(xcurr < getWinRow() - winoffset && xcurr <= c1)
 				{
 					xcurr++;
 					posCursor(xcurr,ycurr);
-				}else if(c1<fileCount-1)
+				}
+				else if(c1 < fileCount-1)
 				{	
 					c1++;
 					c++;
-					xcurr=1;
+					xcurr = 1;
 					posCursor(xcurr,ycurr);
 					cout << "\033[2J\033[1;1H";
-					for(int i=c;i<=c1;i++)
+					for(int i = c; i <= c1; i++)
 					{
 						display(listOfFiles[i]);
 							
 					}
-					posCursor(getWinRow()-winoffset+1,ycurr);
+					posCursor(getWinRow() - winoffset + 1, ycurr);
 					display("printcurrentdir");
 					display("---");
-					xcurr=getWinRow()-winoffset;
+					xcurr = getWinRow() - winoffset;
 					posCursor(xcurr,ycurr);				
-				}else
+				}
+				else
 				{
-					c1=fileCount-1;
-					xcurr=fileCount<getWinRow()-winoffset?fileCount:getWinRow()-winoffset;
-					posCursor(getWinRow()-winoffset+1,ycurr);
+					c1 = fileCount - 1;
+					xcurr = fileCount < getWinRow() - winoffset ? fileCount: getWinRow() - winoffset;
+					posCursor(getWinRow() - winoffset + 1, ycurr);
 					display("printcurrentdir");
 					display("---");
 					posCursor(xcurr,ycurr);
 				}
 			}
-			else if(ch=='q') //quit program on q press
+			else if(ch == 'q') //quit program on q press
 			{
 				term.c_lflag |= ECHO;
 				term.c_lflag |= ICANON;
@@ -1056,17 +1076,17 @@ int main()
 						}
 					}else
 					{
-						if(indextoenter<fileCount) //indextoenter==0 to prevent going forward from mode line
+						if(indextoenter < fileCount) //indextoenter==0 to prevent going forward from mode line
 						{
 							string newPath;
-							if(getFolderName(listOfFiles[indextoenter]+"/")=="..")
+							if(getFolderName(listOfFiles[indextoenter]+"/") == "..")
 							{
 								string pDir = getParentDir(currentPath);
 								newPath = pDir;
 								navStack.push(pDir);
 								currentPath = pDir;
 							}
-							else if(getFolderName(listOfFiles[indextoenter]+"/")==".")
+							else if(getFolderName(listOfFiles[indextoenter] + "/") == ".")
 							{
 								newPath = currentPath;
 							}
