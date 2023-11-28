@@ -122,5 +122,3 @@ Follow the instructions in the Usage section to compile and run the application.
 ## Contributing
 If you want to contribute to this project, feel free to submit issues or pull requests on the GitHub repository.
 
-## License
-This project is licensed under the MIT License - see the LICENSE file for details.
